@@ -9,6 +9,8 @@ A minha solução tenta simular um banco, onde o usuário pode cadastrar Cliente
 O banco é um app de terminal.
 
 Por enquanto, a Conta poupança e a Conta corrente possuem as mesmas funcionalidades. Pretendo mudar isso depois de aprender a usar banco de dados. 
+
+OBS: verificações ainda não estão sendo feitas. Por exemplo, se você tentar adicionar dois Clientes idênticos, o app não reclamará.
 ___
 ## Uso
 Para rodar a solução pelo terminal, usar:
