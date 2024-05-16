@@ -23,9 +23,20 @@ public abstract class Conta {
 
 	public int menu(Scanner entrada, ArrayList<Cliente> outrosClientes) {
 		int escolha = -1;
+		System.out.println("(1) Mostrar saldo");
+		System.out.println("(2) Saque");
+		System.out.println("(3) Depositar");
+		System.out.println("(4) Transferir");
+		System.out.println("(5) Informações");
+		System.out.println("(0) Sair");
 		System.out.print("Escolha: ");
-		escolha = Integer.parseUnsignedInt(entrada.nextLine());
-
+		try {
+			escolha = Integer.parseUnsignedInt(entrada.nextLine());
+		} catch(NumberFormatException e) {
+			System.out.println();
+			System.out.println("ERRO: formato inválido para Escolha.");
+			System.out.println();
+		}
 		switch(escolha) {
 		case 1: { // ver saldo
 			mostrarSaldo();				
@@ -47,17 +58,19 @@ public abstract class Conta {
 			break;
 		}
 
-		case 5: { // mostrar contas
-			mostrarContas();
+		case 5: { // mostrar info
+			mostrarInfo();
 			break;
 		}
 
 		case 0: { // sair
+			System.out.println();
 			System.out.println("Tchau.");
 			break;
 		}
 
 		default: { // invalido
+			System.out.println();
 			System.out.println("Opção inválida.");
 			break;
 		}
@@ -67,21 +80,39 @@ public abstract class Conta {
 	}
 
 	private void mostrarSaldo() {
+		System.out.println();
+		System.out.println("========== Saldo");
 		System.out.printf("Saldo: %.2f.%n", this.saldo);	
+		System.out.println();
 	}
 
 	private void fazerSaque(Scanner entrada) {
 		double saque = -1;
 
+		System.out.println();
+		System.out.println("========= Saque");
 		System.out.print("Valor do saque: ");	
-		saque = Double.parseDouble(entrada.nextLine());
+		try {
+			saque = Double.parseDouble(entrada.nextLine());
+		} catch(NumberFormatException e) {
+			System.out.println();
+			System.out.println("ERRO: formato inválido para Saque.");
+			System.out.println();
+		}
 		if (saque < 0) {
+			System.out.println();
 			System.out.printf("ERRO: espero valor não negativo, mas temos: %.2f.%n", 
 							  saque);
+			System.out.println();
 		} else if (saque > this.saldo) {
+			System.out.println();
 			System.out.println("ERRO: saldo insuficiente.");
+			System.out.println();
 		} else {
+			System.out.println();
 			sacar(saque);	
+			System.out.println("Saque bem sucedido!");
+			System.out.println();
 		}
 	}
 	
@@ -92,14 +123,21 @@ public abstract class Conta {
 	private void fazerDeposito(Scanner entrada) {
 		double deposito = -1;
 		
+		System.out.println();
+		System.out.println("========= Depositar");
 		System.out.print("Valor do depósito: ");
 		deposito = Double.parseDouble(entrada.nextLine());
 	
 		if (deposito < 0) {
+			System.out.println();
 			System.out.printf("ERRO: espero valor não negativo, mas temos: %.2f.%n", 
 							  deposito);
+			System.out.println();
 		} else {
+			System.out.println();
 			depositar(deposito);
+			System.out.println("Depósito bem sucedido.");
+			System.out.println();
 		}
 	}
 
@@ -112,27 +150,51 @@ public abstract class Conta {
 		int idDestinatario = -1;
 		Conta conta = null;
 
+		System.out.println();
+		System.out.println("========= Transferência");
 		System.out.print("Valor para transferir: ");
-		transferencia = Double.parseDouble(entrada.nextLine());
+		try {
+			transferencia = Double.parseDouble(entrada.nextLine());
+		} catch(NumberFormatException e) {
+			System.out.println();
+			System.out.println("ERRO: formato inválido para Transferência.");
+			System.out.println();
+		}
 		if (transferencia < 0) {
+			System.out.println();
 			System.out.printf("ERRO: espero valor não negativo, mas temos: %.2f.%n", 
 							  transferencia);
+			System.out.println();
 			return ;
 		}
 		if (transferencia > this.saldo) {
+			System.out.println();
 			System.out.println("ERRO: saldo insuficiente.");
+			System.out.println();
 			return ;
 		}  
 	
 		System.out.print("Identificador da conta do destinatário: ");
-		idDestinatario = Integer.parseUnsignedInt(entrada.nextLine());	
+		try {	
+			idDestinatario = Integer.parseUnsignedInt(entrada.nextLine());	
+		} catch(NumberFormatException e) {
+			System.out.println();	
+			System.out.println("ERRO: formato inválido para Id.");
+			System.out.println();	
+		}
+
 		conta = buscarContaDestinatario(idDestinatario, outrosClientes);	
 		if (conta == null) {
+			System.out.println();
 			System.out.printf("ERRO: nenhuma conta com Id: '%d'.%n",
 							  idDestinatario);
+			System.out.println();
 		} else {
+			System.out.println();
 			conta.depositar(transferencia);
 			this.sacar(transferencia);	
+			System.out.println("Tranferência bem sucedida!");
+			System.out.println();
 		}
 	}
 
@@ -148,7 +210,12 @@ public abstract class Conta {
 		return null;
 	}
 
-	private void mostrarContas() {
-		return ;
+	private void mostrarInfo() {
+		System.out.println();
+		System.out.println("========= Info");
+		System.out.println("Id: " + this.ID);
+		System.out.println("Agência: " + this.agencia);
+		System.out.printf("Saldo: %.2f%n", this.saldo);
+		System.out.println();
 	}
 }
