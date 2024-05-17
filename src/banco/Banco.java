@@ -41,28 +41,28 @@ public class Banco {
 				System.out.println("ERRO: formato inválido para escolha.");
 			}
 			switch(escolha) {
-			case 1: { // acessar
+			case 1: {
 				acessarCliente(entrada);
 				break;
 			} 
 		
-			case 2: { // abrir
+			case 2: {
 				cadastrarCliente(entrada);
 				break;
 			}
 
-			case 3: { // info 
+			case 3: {
 				mostrarClientes();
 				break;
 			}
 
-			case 0: { // sair
+			case 0: {
 				System.out.println();
 				System.out.println("========= Até mais");
 				break;
 			}
 
-			default: { // invalido
+			default: {
 				System.out.println();
 				System.out.println("Opção inválida.");
 				break;
@@ -118,7 +118,7 @@ public class Banco {
 	public void cadastrarCliente(Scanner entrada) {
 		String nome;
 		int cpf = -1;
-		int id = ++this.numeroDeClientesCadastrados;
+		int id = this.numeroDeClientesCadastrados + 1;
 
 		System.out.println();
 		System.out.println("========= Cadastro");
@@ -129,8 +129,10 @@ public class Banco {
 			return ;
 		}
 
-		// TODO: impedir nomes estranhos: caracteres estranhos, muito grandes ou muito pequenos,
-		// e numeros.
+		// TODO: impedir nomes estranhos: 
+		// caracteres estranhos,
+		// muito grandes ou muito pequenos,
+		// e números
 		System.out.print("Nome: ");
 		nome = entrada.nextLine();
 
@@ -142,14 +144,13 @@ public class Banco {
 			System.out.println("ERRO: formato inválido para CPF.");
 			System.out.println();
 		}
-
 		if ( !cadastrarCliente(nome, cpf, id) ) {
 			System.out.println();
 			System.out.printf("ERRO: '%d' já está cadastrado.%n", cpf);
 			System.out.println();
 		} else {
 			System.out.println("Cadastro completo com sucesso.");
-			this.numeroDeClientesCadastrados++;
+			this.numeroDeClientesCadastrados = this.numeroDeClientesCadastrados + 1;
 		}
 	} 
 
@@ -159,13 +160,9 @@ public class Banco {
 		}
 
 		this.clientes.add( new Cliente(nome, cpf, id) );
-		this.numeroDeClientesCadastrados++;
 		return true;
 	}
 
-	// NOTA: no mundo real, não poderíamos ver quem são os outros
-	// clientes do banco, mas, para simplificar, permiteremos isto
-	// aqui
 	private void mostrarClientes() {
 		System.out.println();
 		System.out.println("========= Clientes");

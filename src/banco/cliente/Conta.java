@@ -16,7 +16,7 @@ public abstract class Conta {
 	}
 
 	// getters ////
-	public int getId()	 { return this.ID; }
+	public int getId()	     { return this.ID; }
 	public int getAgencia()	 { return this.agencia; }
 	public double getSaldo() { return this.saldo; }
 	//// getters
@@ -38,38 +38,38 @@ public abstract class Conta {
 			System.out.println();
 		}
 		switch(escolha) {
-		case 1: { // ver saldo
+		case 1: {
 			mostrarSaldo();				
 			break;
 		} 
 	
-		case 2: { // sacar
+		case 2: {
 			fazerSaque(entrada);	
 			break;
 		}
 
-		case 3: { // depositar 
+		case 3: {
 			fazerDeposito(entrada);
 			break;
 		}
 
-		case 4: { // transferir 
+		case 4: {
 			fazerTransferencia(entrada, outrosClientes);
 			break;
 		}
 
-		case 5: { // mostrar info
+		case 5: {
 			mostrarInfo();
 			break;
 		}
 
-		case 0: { // sair
+		case 0: {
 			System.out.println();
 			System.out.println("Tchau.");
 			break;
 		}
 
-		default: { // invalido
+		default: {
 			System.out.println();
 			System.out.println("Opção inválida.");
 			break;
@@ -201,10 +201,16 @@ public abstract class Conta {
 	private Conta buscarContaDestinatario(int id, ArrayList<Cliente> outrosClientes) {
 		for (Cliente cliente : outrosClientes) {
 			if (cliente == null) return null;	
+
 			for (Conta conta : cliente.getContasCorrente()) { 
 				if (conta == null) break;
 				if (conta.getId() == id) return conta;
 			}		
+
+			for (Conta conta : cliente.getContasPoupanca()) {
+				if (conta == null) break;
+				if (conta.getId() == id) return conta;
+			} 
 		}
 
 		return null;
@@ -213,9 +219,15 @@ public abstract class Conta {
 	private void mostrarInfo() {
 		System.out.println();
 		System.out.println("========= Info");
-		System.out.println("Id: " + this.ID);
-		System.out.println("Agência: " + this.agencia);
-		System.out.printf("Saldo: %.2f%n", this.saldo);
+		System.out.println("" + this);
 		System.out.println();
+	}
+
+	@Override
+	public String toString() {
+		return String.format(
+			"ID: %s%nAgência: %d%nSaldo: %.2f%n", 
+			this.ID, this.agencia, this.saldo
+		);
 	}
 }

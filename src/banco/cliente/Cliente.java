@@ -46,6 +46,14 @@ public class Cliente {
 	}
 	//// getters
 
+	private void atualizarNumeroDeContas(TipoDeConta t) {
+		if (t == TipoDeConta.POUPANCA) {
+			this.numeroDeContasPoupanca = this.numeroDeContasPoupanca + 1;
+		} else {
+			this.numeroDeContasCorrente = this.numeroDeContasCorrente + 1;
+		} 
+	}
+
 	public int menu(Scanner entrada, final ArrayList<Cliente> clientes) {
 		int escolha = -1;
 		System.out.println("(1) Entrar");
@@ -62,35 +70,36 @@ public class Cliente {
 			System.out.println();
 		}
 		switch(escolha) {
-		case 1: { // entrar numa conta
+		case 1: { 
 			acessarConta(entrada, clientes);
 			break;
 		}			
 
-		case 2: { // criar conta
+		case 2: {
 			criarConta(entrada);
 			break;
 		}
 
-		case 3: { // info do cliente 
+		case 3: {
 			mostrarInfo();
 			break;
 		}
 
-		case 4: { // mostrar contas
+		case 4: {
 			mostrarContas();
 			break;
 		}
 		
-		case 0: { // sair
+		case 0: {
 			System.out.printf("%nTchau, %s!%n",
 							  this.nome);
 			break;
 		}
 
-		default: { // invalido
+		default: {
 			System.out.println();
 			System.out.println("Opção inválida.");
+			System.out.println();
 			break;
 		}
 		}
@@ -132,7 +141,7 @@ public class Cliente {
 			System.out.println();
 			System.out.println("========= Conta");
 			while (conta.menu(entrada, outrosClientes) != 0);
-		}
+	}
 	
 	private Conta acessarConta(int id) {
 		if (this.contas.get(TipoDeConta.CORRENTE).isEmpty() &&
@@ -171,7 +180,7 @@ public class Cliente {
 			System.out.println();
 		}
 		if (escolha == 1) { // corrente
-			final int id = ++this.numeroDeContasCorrente;
+			final int id = this.numeroDeContasCorrente + 1;
 			if (id > this.MAXIMO_DE_CONTAS_CORRENTE) {
 				System.out.println();
 				System.out.println("ERRO: limite de contas corrente já foi alcançado"); 
@@ -183,12 +192,12 @@ public class Cliente {
 			System.out.println();
 			System.out.print("Agência: ");
 			agencia = Integer.parseUnsignedInt(entrada.nextLine());
+			atualizarNumeroDeContas(t);
 			this.contas.get(t).add( new ContaCorrente(id, agencia) );
-			++this.numeroDeContasCorrente;
 			System.out.println("Conta criada com sucesso!");
 			System.out.println();
 		} else if (escolha == 2) { // poupanca
-			final int id = ++this.numeroDeContasPoupanca;
+			final int id = this.numeroDeContasPoupanca + 1;
 			if (id > this.MAXIMO_DE_CONTAS_POUPANCA) {
 				System.out.println();
 				System.out.println("ERRO: limite de contas poupança já foi alcançado"); 
@@ -200,8 +209,8 @@ public class Cliente {
 			System.out.println();
 			System.out.print("Agência: ");
 			agencia = Integer.parseUnsignedInt(entrada.nextLine());
+			atualizarNumeroDeContas(t);
 			this.contas.get(t).add( new ContaPoupanca(id, agencia) );
-			++this.numeroDeContasPoupanca;
 			System.out.println("Conta criada com sucesso!");
 			System.out.println();
 		} else {
@@ -225,7 +234,8 @@ public class Cliente {
 		System.out.println();
 		System.out.println("========= Contas");
 		for (TipoDeConta t : TipoDeConta.values()) {
-			for (Conta conta : this.contas.get(t)) {
+			ArrayList<Conta> contas = this.contas.get(t);
+			for (Conta conta : contas) {
 				if (conta == null) break;
 				System.out.println("" + conta);
 				System.out.println();
@@ -237,7 +247,8 @@ public class Cliente {
 	@Override
 	public String toString() {
 		return String.format(
-			"Nome: %s%nCPF: %d%nIdentificador: %d%n", this.nome, this.CPF, this.ID
+			"Nome: %s%nCPF: %d%nIdentificador: %d%n", 
+			this.nome, this.CPF, this.ID
 		);
 	}
 }
