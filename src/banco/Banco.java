@@ -34,7 +34,7 @@ public class Banco {
 			System.out.println("(2) Criar conta");
 			System.out.println("(3) Mostrar contas");
 			System.out.println("(0) Sair");
-			System.out.print("- Escolha: ");
+			System.out.print("Escolha: ");
 			try { 
 				escolha = Integer.parseUnsignedInt(entrada.nextLine());
 			} catch(NumberFormatException e) {

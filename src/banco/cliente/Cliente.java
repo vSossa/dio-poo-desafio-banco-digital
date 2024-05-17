@@ -12,10 +12,10 @@ public class Cliente {
 	
 	private Map<TipoDeConta, ArrayList<Conta>> contas;
 
-	int numeroDeContasCorrente = 0;
+	int numeroDeContasCorrente;
 	final int MAXIMO_DE_CONTAS_CORRENTE = 3;
 
-	int numeroDeContasPoupanca = 0;
+	int numeroDeContasPoupanca;
 	final int MAXIMO_DE_CONTAS_POUPANCA = 1;
 
 	public Cliente(String nome, int cpf, int id) {
@@ -24,20 +24,17 @@ public class Cliente {
 		this.ID = id;
 
 		this.contas = new HashMap<>();
-		this.contas.put(TipoDeConta.CORRENTE, new ArrayList<>());
-		this.contas.put(TipoDeConta.POUPANCA, new ArrayList<>());
+			this.contas.put(TipoDeConta.CORRENTE, new ArrayList<>());
+			this.numeroDeContasCorrente = 0;
+
+			this.contas.put(TipoDeConta.POUPANCA, new ArrayList<>());
+			this.numeroDeContasPoupanca = 0;
 	}
 
 	// getters ////
 	public String getNome() { return this.nome; }
 	public int getCpf()     { return this.CPF; }
 	public int getId()      { return this.ID; }
-	public int getNumeroDeContasCorrente() {
-		return this.numeroDeContasCorrente;
-	}
-	public int getNumeroDeContasPoupanca() {
-		return this.numeroDeContasPoupanca;
-	}
 	public ArrayList<Conta> getContasCorrente() {
 		return this.contas.get(TipoDeConta.CORRENTE);
 	}
@@ -45,14 +42,6 @@ public class Cliente {
 		return this.contas.get(TipoDeConta.POUPANCA);
 	}
 	//// getters
-
-	private void atualizarNumeroDeContas(TipoDeConta t) {
-		if (t == TipoDeConta.POUPANCA) {
-			this.numeroDeContasPoupanca = this.numeroDeContasPoupanca + 1;
-		} else {
-			this.numeroDeContasCorrente = this.numeroDeContasCorrente + 1;
-		} 
-	}
 
 	public int menu(Scanner entrada, final ArrayList<Cliente> clientes) {
 		int escolha = -1;
@@ -109,6 +98,7 @@ public class Cliente {
 
 	private void acessarConta(Scanner entrada, ArrayList<Cliente> outrosClientes) {
 		int id = -1;
+		int escolha = -1;
 		Conta conta = null;
 		
 		System.out.println();
@@ -127,7 +117,29 @@ public class Cliente {
 			System.out.println();
 		}
 
-		conta = acessarConta(id);		
+		System.out.println();	
+		System.out.println("Tipo de conta");
+		System.out.println("(1) Corrente");
+		System.out.println("(2) Poupança");
+		System.out.print("Escolha: ");
+		try {
+			escolha = Integer.parseUnsignedInt(entrada.nextLine());
+		} catch(NumberFormatException e) {
+			System.out.println();
+			System.out.println("ERRO: formato inválido para Escolha.");
+			System.out.println();
+		}	
+
+		if (escolha == 1) {
+			conta = acessarConta(id, TipoDeConta.CORRENTE);	
+		} else if (escolha == 2){ 
+			conta = acessarConta(id, TipoDeConta.POUPANCA);
+		} else {
+			System.out.printf("ERRO: esperado '1' ou '2', mas temos: %d%n",
+							  escolha);
+			return ;
+		}
+
 		if ( conta == null ) {
 			System.out.println();
 			System.out.printf("ERRO: nenhum conta encontrada com id: '%d'.%n", id);
@@ -143,19 +155,13 @@ public class Cliente {
 			while (conta.menu(entrada, outrosClientes) != 0);
 	}
 	
-	private Conta acessarConta(int id) {
-		if (this.contas.get(TipoDeConta.CORRENTE).isEmpty() &&
-			this.contas.get(TipoDeConta.POUPANCA).isEmpty()) {
-			return null;	
+	private Conta acessarConta(int id, TipoDeConta t) {
+		if ( this.contas.get(t).isEmpty() ) return null;	
+		
+		for (Conta conta : this.contas.get(t)) {
+			if (conta == null) break;
+			if (conta.getId() == id) return conta;;
 		}
-
-		for (TipoDeConta t : TipoDeConta.values()) {
-			ArrayList<Conta> contas = this.contas.get(t);
-			if (contas == null) continue;
-			for (Conta conta : contas) {
-				if (conta.getId() == id) return conta;
-			}
-		}	
 
 		return null;
 	}
@@ -167,11 +173,10 @@ public class Cliente {
 		int escolha = -1;	
 
 		System.out.println();
-		System.out.println("========= Criar");
-		System.out.println("Conta");
-		System.out.println("    (1) Corrente");
-		System.out.println("    (2) Poupança");
-		System.out.print("- ");
+		System.out.println("========= Criar conta");
+		System.out.println("(1) Corrente");
+		System.out.println("(2) Poupança");
+		System.out.print("Escolha: ");
 		try {
 			escolha = Integer.parseUnsignedInt(entrada.nextLine());	
 		} catch(NumberFormatException e) {
@@ -192,7 +197,7 @@ public class Cliente {
 			System.out.println();
 			System.out.print("Agência: ");
 			agencia = Integer.parseUnsignedInt(entrada.nextLine());
-			atualizarNumeroDeContas(t);
+			this.numeroDeContasCorrente = id;
 			this.contas.get(t).add( new ContaCorrente(id, agencia) );
 			System.out.println("Conta criada com sucesso!");
 			System.out.println();
@@ -209,7 +214,7 @@ public class Cliente {
 			System.out.println();
 			System.out.print("Agência: ");
 			agencia = Integer.parseUnsignedInt(entrada.nextLine());
-			atualizarNumeroDeContas(t);
+			this.numeroDeContasPoupanca = id;
 			this.contas.get(t).add( new ContaPoupanca(id, agencia) );
 			System.out.println("Conta criada com sucesso!");
 			System.out.println();
@@ -233,10 +238,17 @@ public class Cliente {
 	private void mostrarContas() {
 		System.out.println();
 		System.out.println("========= Contas");
+		if (this.contas.get(TipoDeConta.CORRENTE).isEmpty() &&
+			this.contas.get(TipoDeConta.POUPANCA).isEmpty()) { 
+			System.out.println("Nenhuma conta cadastrada.");
+			System.out.println();
+			return ;
+		}
+
 		for (TipoDeConta t : TipoDeConta.values()) {
 			ArrayList<Conta> contas = this.contas.get(t);
+			if (contas == null) continue;
 			for (Conta conta : contas) {
-				if (conta == null) break;
 				System.out.println("" + conta);
 				System.out.println();
 			} 

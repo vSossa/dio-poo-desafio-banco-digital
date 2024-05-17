@@ -4,9 +4,9 @@ import java.util.Scanner;
 import java.util.ArrayList;
 
 public abstract class Conta { 
-	private int ID;
-	private int agencia;
-	private double saldo;	
+	protected int ID;
+	protected int agencia;
+	protected double saldo;	
 
 	public Conta(int id, int agencia) {
 		this.ID = id;
@@ -147,7 +147,9 @@ public abstract class Conta {
 
 	private void fazerTransferencia(Scanner entrada, ArrayList<Cliente> outrosClientes) {
 		double transferencia = -1;
+		int cpfDestinatario = -1;
 		int idDestinatario = -1;
+		int escolha = -1;
 		Conta conta = null;
 
 		System.out.println();
@@ -159,6 +161,7 @@ public abstract class Conta {
 			System.out.println();
 			System.out.println("ERRO: formato inválido para Transferência.");
 			System.out.println();
+			return ;
 		}
 		if (transferencia < 0) {
 			System.out.println();
@@ -173,6 +176,16 @@ public abstract class Conta {
 			System.out.println();
 			return ;
 		}  
+
+		System.out.print("CPF do destinatário: ");
+		try {	
+			cpfDestinatario = Integer.parseUnsignedInt(entrada.nextLine());	
+		} catch(NumberFormatException e) {
+			System.out.println();	
+			System.out.println("ERRO: formato inválido para Id.");
+			System.out.println();	
+			return ;
+		}
 	
 		System.out.print("Identificador da conta do destinatário: ");
 		try {	
@@ -181,9 +194,32 @@ public abstract class Conta {
 			System.out.println();	
 			System.out.println("ERRO: formato inválido para Id.");
 			System.out.println();	
+			return ;
 		}
 
-		conta = buscarContaDestinatario(idDestinatario, outrosClientes);	
+		System.out.println();	
+		System.out.println("Tipo de conta");
+		System.out.println("(1) Corrente");
+		System.out.println("(2) Poupança");
+		System.out.print("Escolha: ");
+		try {
+			escolha = Integer.parseUnsignedInt(entrada.nextLine());
+		} catch(NumberFormatException e) {
+			System.out.println();
+			System.out.println("ERRO: formato inválido para Escolha.");
+			System.out.println();
+			return ;
+		}	
+		if (escolha == 1) {
+			conta = buscarContaDestinatario(cpfDestinatario, idDestinatario, TipoDeConta.CORRENTE, outrosClientes);	
+		} else if (escolha == 2) { 
+			conta = buscarContaDestinatario(cpfDestinatario, idDestinatario, TipoDeConta.POUPANCA, outrosClientes);	
+		} else {
+			System.out.printf("ERRO: esperado '1' ou '2', mas temos: %d%n",
+							  escolha);
+			return ;
+		}
+
 		if (conta == null) {
 			System.out.println();
 			System.out.printf("ERRO: nenhuma conta com Id: '%d'.%n",
@@ -193,24 +229,27 @@ public abstract class Conta {
 			System.out.println();
 			conta.depositar(transferencia);
 			this.sacar(transferencia);	
-			System.out.println("Tranferência bem sucedida!");
+			System.out.println("Transferência bem sucedida!");
 			System.out.println();
 		}
 	}
 
-	private Conta buscarContaDestinatario(int id, ArrayList<Cliente> outrosClientes) {
+	// TODO: quebrar essa funcao em duas:
+	// uma para buscar o cliente
+	// a outra para buscar a conta
+	private Conta buscarContaDestinatario(int cpf, int id, TipoDeConta t, ArrayList<Cliente> outrosClientes) {
 		for (Cliente cliente : outrosClientes) {
-			if (cliente == null) return null;	
-
-			for (Conta conta : cliente.getContasCorrente()) { 
-				if (conta == null) break;
-				if (conta.getId() == id) return conta;
-			}		
-
-			for (Conta conta : cliente.getContasPoupanca()) {
-				if (conta == null) break;
-				if (conta.getId() == id) return conta;
-			} 
+			if (cliente.getCpf() == cpf) {
+				if (t == TipoDeConta.CORRENTE) {
+					for (Conta conta : cliente.getContasCorrente()) {
+						if (conta.getId() == id) return conta;
+					}
+				} else {
+					for (Conta conta: cliente.getContasPoupanca()) {
+						if (conta.getId() == id) return conta;
+					}
+				}
+			}
 		}
 
 		return null;
@@ -221,13 +260,5 @@ public abstract class Conta {
 		System.out.println("========= Info");
 		System.out.println("" + this);
 		System.out.println();
-	}
-
-	@Override
-	public String toString() {
-		return String.format(
-			"ID: %s%nAgência: %d%nSaldo: %.2f%n", 
-			this.ID, this.agencia, this.saldo
-		);
 	}
 }
