@@ -150,6 +150,7 @@ public abstract class Conta {
 		int cpfDestinatario = -1;
 		int idDestinatario = -1;
 		int escolha = -1;
+		Cliente cliente = null;
 		Conta conta = null;
 
 		System.out.println();
@@ -182,11 +183,19 @@ public abstract class Conta {
 			cpfDestinatario = Integer.parseUnsignedInt(entrada.nextLine());	
 		} catch(NumberFormatException e) {
 			System.out.println();	
-			System.out.println("ERRO: formato inválido para Id.");
+			System.out.println("ERRO: formato inválido para CPF.");
 			System.out.println();	
 			return ;
 		}
-	
+		cliente = buscarCliente(cpfDestinatario, outrosClientes);
+
+		if (cliente == null) {
+			System.out.println();	
+			System.out.printf("ERRO: '%d' não encontrado.%n", cpfDestinatario);
+			System.out.println();	
+			return ;
+		}
+
 		System.out.print("Identificador da conta do destinatário: ");
 		try {	
 			idDestinatario = Integer.parseUnsignedInt(entrada.nextLine());	
@@ -195,6 +204,11 @@ public abstract class Conta {
 			System.out.println("ERRO: formato inválido para Id.");
 			System.out.println();	
 			return ;
+		}
+		if (idDestinatario == this.ID) {
+			System.out.println();
+			System.out.println("ERRO: não é possível transferir para si mesmo.");
+			System.out.println();
 		}
 
 		System.out.println();	
@@ -211,9 +225,9 @@ public abstract class Conta {
 			return ;
 		}	
 		if (escolha == 1) {
-			conta = buscarContaDestinatario(cpfDestinatario, idDestinatario, TipoDeConta.CORRENTE, outrosClientes);	
+			conta = buscarConta(cliente, idDestinatario, TipoDeConta.CORRENTE);	
 		} else if (escolha == 2) { 
-			conta = buscarContaDestinatario(cpfDestinatario, idDestinatario, TipoDeConta.POUPANCA, outrosClientes);	
+			conta = buscarConta(cliente, idDestinatario, TipoDeConta.POUPANCA);	
 		} else {
 			System.out.printf("ERRO: esperado '1' ou '2', mas temos: %d%n",
 							  escolha);
@@ -222,8 +236,8 @@ public abstract class Conta {
 
 		if (conta == null) {
 			System.out.println();
-			System.out.printf("ERRO: nenhuma conta com Id: '%d'.%n",
-							  idDestinatario);
+			System.out.printf("ERRO: nenhuma conta com Id: '%d', para o CPF: '%d'.%n",
+							  idDestinatario, cpfDestinatario);
 			System.out.println();
 		} else {
 			System.out.println();
@@ -234,23 +248,24 @@ public abstract class Conta {
 		}
 	}
 
-	// TODO: quebrar essa funcao em duas:
-	// uma para buscar o cliente
-	// a outra para buscar a conta
-	private Conta buscarContaDestinatario(int cpf, int id, TipoDeConta t, ArrayList<Cliente> outrosClientes) {
-		for (Cliente cliente : outrosClientes) {
-			if (cliente.getCpf() == cpf) {
-				if (t == TipoDeConta.CORRENTE) {
-					for (Conta conta : cliente.getContasCorrente()) {
-						if (conta.getId() == id) return conta;
-					}
-				} else {
-					for (Conta conta: cliente.getContasPoupanca()) {
-						if (conta.getId() == id) return conta;
-					}
-				}
+	private Cliente buscarCliente(int cpf, ArrayList<Cliente> clientes) {
+		for (Cliente cliente : clientes) {
+			if (cliente.getCpf() == cpf) return cliente;
+		}	
+
+		return null;
+	}
+
+	private Conta buscarConta(Cliente cliente, int id, TipoDeConta t) {
+		if (t == TipoDeConta.CORRENTE) {
+			for (Conta conta : cliente.getContasCorrente()) {
+				if (conta.getId() == id) return conta;
 			}
-		}
+		} else { 
+			for (Conta conta : cliente.getContasPoupanca()) {
+				if (conta.getId() == id) return conta;
+			}
+		} 
 
 		return null;
 	}
